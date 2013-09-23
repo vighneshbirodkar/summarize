@@ -35,4 +35,4 @@ nosetests.xml
 .pydevproject
 
 # Visualizer Data File
-.vdf
+*.vdf
