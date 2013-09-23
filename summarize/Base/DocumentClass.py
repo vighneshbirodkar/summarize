@@ -82,6 +82,7 @@ class Document(object):
             
     def visualize(self):
         circleVisualize(self.tfidf)
+
     
 class DocumentSet(object):
     """
