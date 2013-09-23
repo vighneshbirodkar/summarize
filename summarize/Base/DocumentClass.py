@@ -1,6 +1,7 @@
 import re
 import os
 import math
+from ..Visualize.Visualizer import circleVisualize
 
 class Document(object):
     """
@@ -79,7 +80,8 @@ class Document(object):
         else :
             raise RuntimeError("The Document does not have s Super-Set")
             
-            
+    def visualize(self):
+        circleVisualize(self.tfidf)
     
 class DocumentSet(object):
     """
