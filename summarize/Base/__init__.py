@@ -1,3 +1,3 @@
-from DocumentClass import Document,DocumentSet
+from DocumentClass import Document,DocumentSet,Sentence
 
-__all__ = ['Document','DocumentSet']
+__all__ = ['Document','DocumentSet','Sentence',]
