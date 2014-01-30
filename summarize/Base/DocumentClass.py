@@ -26,7 +26,8 @@ from pygraph.classes.graph import graph
 class Sentence(object):
     """
     
-    A sentence , basically a wrapper around a list of words
+    A sentence , basically a wrapper around a list of words, with some others
+    functions defined
     
     """
     
@@ -74,6 +75,15 @@ class Sentence(object):
     def getInfluencedScore(self):
         return self.score - self.influenceScore
 
+    def getInfluence(self):
+        return self.influenceScore
+
+    def addInfluenceFrom(self,baseDoc,influence):
+        w = 0
+        for pair in itertools.combinations(self.words(), 2):
+            w += baseDoc.getCoGraphWeight(pair[0],pair[1])/len(self)
+        self.influenceScore = influence*w 
+
 class Document(object):
     """
     
@@ -95,6 +105,7 @@ class Document(object):
         self.coGraph = None
         self.fn = fileName
         self.textRank = False
+        self.coOccurDone = False
         with open(fileName, 'r') as f:
             for line in f:
                 list_ = Document.regex.split(line.strip())
@@ -112,16 +123,30 @@ class Document(object):
     def sentences(self):
         return self.sentences_
     
-    def genSummary(self,compression = 0.10):
+    def genSummary(self,compression = 0.10,base = None,influence = 0.01):
         
         self.doTextRank()
-        self.sentences_ = sorted(self.sentences_,key = Sentence.getInfluencedScore)
-        retVal = []
-        count = compression * len(self.sentences())
-        for i in range(1,int(count+1)):
-            retVal.append( str(self.sentences_[-i]) )
-    
-        return retVal
+        if base == None :
+            self.sentences_ = sorted(self.sentences_,key = Sentence.getScore)
+            retVal = []
+            count = compression * len(self.sentences())
+            for i in range(1,int(count+1)):
+                retVal.append( str(self.sentences_[-i]) )
+                #print self.sentences_[-i].getScore()
+                
+        
+            return retVal
+        else :
+            base.doCoGraph()
+            self.addInfluenceFrom(base,influence)
+            self.sentences_ = sorted(self.sentences_,key = Sentence.getInfluencedScore)
+            retVal = []
+            count = compression * len(self.sentences())
+            for i in range(1,int(count+1)):
+                retVal.append( str(self.sentences_[-i]) )
+                print self.sentences_[-i].getScore(),self.sentences_[-i].getInfluence()
+        
+            return retVal
         
 
     def doTextRank(self,error = 0.001):
@@ -140,7 +165,7 @@ class Document(object):
 
         # Remove sentences that are to dissimilar with any other sentence
         # Makes denominator in PR formula 0
-        # I dont really know what is supposed to be done here
+        # I dont really know what is supposed to be done here, Vig
 
         for s in self.sentences() :
             total = sum([self.graph.edge_weight((s,n)) for n in self.graph.node_neighbors[s]])
@@ -173,8 +198,37 @@ class Document(object):
                 totalUpdate += update
             if __DEBUG__ : 
                 print 'Text Rank Iteration, Error = ',totalUpdate
+    
+    def doCoGraph(self):
         
+        if self.coOccurDone :
+            return
+        self.coOccurDone = True
+        self.coGraph = graph()
+        for s in self.sentences():
+            for pair in itertools.combinations(s.words(), 2):
+                if self.coGraph.has_edge(pair):
+                    w = self.coGraph.edge_weight(pair)
+                    self.coGraph.set_edge_weight(pair,wt = w + 1)
+                else :
+                    if not self.coGraph.has_node(pair[0]):
+                        self.coGraph.add_node(pair[0])
+                    if not self.coGraph.has_node(pair[1]):
+                        self.coGraph.add_node(pair[1])
+                    self.coGraph.add_edge(pair,wt = 1)
 
+
+    def getCoGraphWeight(self,word1,word2):
+        
+        self.doCoGraph()
+        if self.coGraph.has_edge((word1,word2)):
+            return self.coGraph.edge_weight((word1,word2))/math.log(len(self.sentences()))
+        else:
+            return 0
+
+    def addInfluenceFrom(self,base,influence):
+        for s in self.sentences():
+            s.addInfluenceFrom(base,influence)
 
 
 class DocumentSet(object):
