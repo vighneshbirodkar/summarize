@@ -82,7 +82,7 @@ class Sentence(object):
         w = 0
         for pair in itertools.combinations(self.words(), 2):
             w += baseDoc.getCoGraphWeight(pair[0],pair[1])/len(self)
-        self.influenceScore = influence*w 
+        self.influenceScore = influence * w
 
 class Document(object):
     """
@@ -229,7 +229,32 @@ class Document(object):
     def addInfluenceFrom(self,base,influence):
         for s in self.sentences():
             s.addInfluenceFrom(base,influence)
-
+    
+    def getFSOverlap(self, sentence):
+        """
+        Gets the First Sentence Overlap of a given sentence.
+        
+        Args:
+            sentence : The sentence for which to compute FSO
+        
+        """
+        return sentence.similarity(self.sentences_[0])
+    
+    def getGOverlap(self, idx_s, w1 = 0.6, w2 = 0.3, w3 = 0.1):
+        """
+        Gets the Gaussian Overlap of a given sentence.
+        
+        Args:
+            idx_s : The position of sentence in the document.
+            w1    : The weight for 1st level
+            w2    : The weight for 2nd level
+            w3    : The weight for 3rd level
+        
+        """
+        level1 = (self.sentences_[idx_s].similarity(self.sentences_[idx_s-1]) + self.sentences_[idx_s].similarity(self.sentences_[idx_s+1]))/2
+        level2 = (self.sentences_[idx_s].similarity(self.sentences_[idx_s-2]) + self.sentences_[idx_s].similarity(self.sentences_[idx_s+2]))/2
+        level3 = (self.sentences_[idx_s].similarity(self.sentences_[idx_s-3]) + self.sentences_[idx_s].similarity(self.sentences_[idx_s+3]))/2
+        return (w1*level1 + w2*level2 + w3*level3)
 
 class DocumentSet(object):
     """
