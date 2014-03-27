@@ -240,21 +240,40 @@ class Document(object):
         """
         return sentence.similarity(self.sentences_[0])
     
-    def getGOverlap(self, idx_s, w1 = 0.6, w2 = 0.3, w3 = 0.1):
+    def getLocalOverlap(self, idx_s, weights):
+        """
+        Gets the Local Overlap of a given sentence.
+        
+        Args:
+            idx_s   : The position of sentence in the document.
+            weights : Weight vector for local similarity, ordered by level
+        
+        """
+        score = 0
+        level = 1
+        for weight in weights:
+            if (idx_s - level) >= 0:
+                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s-level])
+            if (idx_s + level) < len(self.sentences_):
+                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s+level])
+            level = level + 1
+       return score
+    
+    def getGaussianWeights(self, sigma = 5.0):
+        weights = [math.exp(-math.pow(float(x)/sigma, 2.0)/2) for x in range(3*sigma)] # Generate Gaussian function
+        weights = [i/sum(weights) for i in weights] # Normalize
+        return weights
+    
+    def getGaussianOverlap(self, idx_s, sigma = 5.0):
         """
         Gets the Gaussian Overlap of a given sentence.
         
         Args:
             idx_s : The position of sentence in the document.
-            w1    : The weight for 1st level
-            w2    : The weight for 2nd level
-            w3    : The weight for 3rd level
+            sigma : The sigma parameter for Gaussians
         
         """
-        level1 = (self.sentences_[idx_s].similarity(self.sentences_[idx_s-1]) + self.sentences_[idx_s].similarity(self.sentences_[idx_s+1]))/2
-        level2 = (self.sentences_[idx_s].similarity(self.sentences_[idx_s-2]) + self.sentences_[idx_s].similarity(self.sentences_[idx_s+2]))/2
-        level3 = (self.sentences_[idx_s].similarity(self.sentences_[idx_s-3]) + self.sentences_[idx_s].similarity(self.sentences_[idx_s+3]))/2
-        return (w1*level1 + w2*level2 + w3*level3)
+       return getLocalOverlap(idx_s, getGaussianWeights(sigma))
 
 class DocumentSet(object):
     """
