@@ -82,7 +82,7 @@ class Sentence(object):
         w = 0
         for pair in itertools.combinations(self.words(), 2):
             w += baseDoc.getCoGraphWeight(pair[0],pair[1])/len(self)
-        self.influenceScore = influence*w 
+        self.influenceScore = influence * w
 
 class Document(object):
     """
@@ -229,7 +229,51 @@ class Document(object):
     def addInfluenceFrom(self,base,influence):
         for s in self.sentences():
             s.addInfluenceFrom(base,influence)
-
+    
+    def getFSOverlap(self, sentence):
+        """
+        Gets the First Sentence Overlap of a given sentence.
+        
+        Args:
+            sentence : The sentence for which to compute FSO
+        
+        """
+        return sentence.similarity(self.sentences_[0])
+    
+    def getLocalOverlap(self, idx_s, weights):
+        """
+        Gets the Local Overlap of a given sentence.
+        
+        Args:
+            idx_s   : The position of sentence in the document.
+            weights : Weight vector for local similarity, ordered by level
+        
+        """
+        score = 0
+        level = 1
+        for weight in weights:
+            if (idx_s - level) >= 0:
+                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s-level])
+            if (idx_s + level) < len(self.sentences_):
+                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s+level])
+            level = level + 1
+       return score
+    
+    def getGaussianWeights(self, sigma = 5.0):
+        weights = [math.exp(-math.pow(float(x)/sigma, 2.0)/2) for x in range(3*sigma)] # Generate Gaussian function
+        weights = [i/sum(weights) for i in weights] # Normalize
+        return weights
+    
+    def getGaussianOverlap(self, idx_s, sigma = 5.0):
+        """
+        Gets the Gaussian Overlap of a given sentence.
+        
+        Args:
+            idx_s : The position of sentence in the document.
+            sigma : The sigma parameter for Gaussians
+        
+        """
+       return getLocalOverlap(idx_s, getGaussianWeights(sigma))
 
 class DocumentSet(object):
     """
