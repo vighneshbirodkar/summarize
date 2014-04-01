@@ -34,6 +34,8 @@ class Sentence(object):
     def __init__(self,string):
         self.string = string
         self.words_ = []
+        self.probability = None 
+        self.contribProbability = None
         matchIter = re.finditer('[\w]+',string)
         self.len_ = 0
         self.score = random.random()/2 # random number between 0 and 3
@@ -47,6 +49,8 @@ class Sentence(object):
             #Also causes problem with log
             raise ValueError
 
+    def __repr__(self):
+        return self.string
     
     def __str__(self):
         return self.string
@@ -81,8 +85,10 @@ class Sentence(object):
     def addInfluenceFrom(self,baseDoc,influence):
         w = 0
         for pair in itertools.combinations(self.words(), 2):
+            #print pair[0],pair[1]
             w += baseDoc.getCoGraphWeight(pair[0],pair[1])/len(self)
         self.influenceScore = influence * w
+        #print "w = ",w,"len = ",len(self)
 
 class Document(object):
     """
@@ -106,6 +112,7 @@ class Document(object):
         self.fn = fileName
         self.textRank = False
         self.coOccurDone = False
+        self.wordCount = {}
         with open(fileName, 'r') as f:
             for line in f:
                 list_ = Document.regex.split(line.strip())
@@ -118,8 +125,16 @@ class Document(object):
                         except ValueError:
                             #No Valid word was found
                             pass
-
-
+        
+        for sentence in self.sentences_:
+            for word in sentence.words_:
+                try:
+                    self.wordCount[word] += 1
+                except KeyError:
+                    self.wordCount[word] = 1
+        
+        self.totalWords = len([self.wordCount[x] for x in self.wordCount.keys()])
+        
     def sentences(self):
         return self.sentences_
     
@@ -253,15 +268,17 @@ class Document(object):
         level = 1
         for weight in weights:
             if (idx_s - level) >= 0:
-                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s-level])
+                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s-level]))
             if (idx_s + level) < len(self.sentences_):
-                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s+level])
+                score = score + weight * (self.sentences_[idx_s].similarity(self.sentences_[idx_s+level]))
             level = level + 1
-       return score
+        return score
     
     def getGaussianWeights(self, sigma = 5.0):
-        weights = [math.exp(-math.pow(float(x)/sigma, 2.0)/2) for x in range(3*sigma)] # Generate Gaussian function
-        weights = [i/sum(weights) for i in weights] # Normalize
+        weights = [math.exp(-math.pow(float(x)/sigma, 2.0)/2) for x in range(int(3*sigma))] # Generate Gaussian function
+        min_w = min(weights)
+        max_w = max(weights)
+        weights = [(i-min_w)/(max_w + min_w) for i in weights] # Normalize
         return weights
     
     def getGaussianOverlap(self, idx_s, sigma = 5.0):
@@ -273,7 +290,13 @@ class Document(object):
             sigma : The sigma parameter for Gaussians
         
         """
-       return getLocalOverlap(idx_s, getGaussianWeights(sigma))
+        return self.getLocalOverlap(idx_s, self.getGaussianWeights(sigma))
+    
+    def getSentenceProbability(self, s_idx):
+        probability = 0
+        for word in self.sentences_[s_idx].words_:
+            probability += self.wordCount[word]/float(self.totalWords)
+        return probability/len(self.sentences_[s_idx].words_)
 
 class DocumentSet(object):
     """

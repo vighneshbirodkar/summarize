@@ -1,0 +1,245 @@
+Starting to Create Graph for doc.txt
+Text Rank Iteration, Error =  5.40037474295
+Text Rank Iteration, Error =  3.75367955726
+Text Rank Iteration, Error =  2.7938577119
+Text Rank Iteration, Error =  2.03655796479
+Text Rank Iteration, Error =  1.48181110333
+Text Rank Iteration, Error =  1.07827576482
+Text Rank Iteration, Error =  0.784652906502
+Text Rank Iteration, Error =  0.570985706895
+Text Rank Iteration, Error =  0.415501633988
+Text Rank Iteration, Error =  0.302357141077
+Text Rank Iteration, Error =  0.220022819866
+Text Rank Iteration, Error =  0.160108807437
+Text Rank Iteration, Error =  0.116509870354
+Text Rank Iteration, Error =  0.0847832802395
+Text Rank Iteration, Error =  0.0616960999644
+Text Rank Iteration, Error =  0.0448957476057
+Text Rank Iteration, Error =  0.0326702685297
+Text Rank Iteration, Error =  0.023773887344
+Text Rank Iteration, Error =  0.0173000634792
+Text Rank Iteration, Error =  0.0125891147734
+Text Rank Iteration, Error =  0.00916099591018
+Text Rank Iteration, Error =  0.00666638183674
+Text Rank Iteration, Error =  0.00485107156787
+Text Rank Iteration, Error =  0.00353008512456
+Text Rank Iteration, Error =  0.00256881408826
+Text Rank Iteration, Error =  0.00186930501311
+Text Rank Iteration, Error =  0.00136027797729
+Text Rank Iteration, Error =  0.000989863164402
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The alternative to modeling the machine is to model the problem you’re trying to solve. 4.16491681376
+
+
+
+
+Thus, OOP allows you to describe the problem in terms of the problem, rather than in terms of the computer where the solution will run. 4.16280967372
+
+
+
+
+The programmer must establish the association between the machine model (in the “solution space,” which is the place where you’re modeling that problem, such as a computer) and the model of the problem that is actually being solved (in the “problem space,” which is the place where the problem exists). 4.16006216761
+
+
+
+
+It can be argued that the complexity of the problems you’re able to solve is directly related to the kind and quality of abstraction. 4.01488667062
+
+
+
+
+Each of these approaches is a good solution to the particular class of problem they’re designed to solve, but when you step outside of that domain they become awkward. 3.81873012056
+
+
+
+
+The idea is that the program is allowed to adapt itself to the lingo of the problem by adding new types of objects, so when you read the code describing the solution, you’re reading words that also express the problem. 3.75622359632
+
+
+
+
+We refer to the  elements in the problem space and their representations in the solution space as “objects. 3.74852113292
+
+
+
+
+The object-oriented approach goes a step farther by providing tools for the programmer to represent elements in the problem space. 3.70369893121
+
+
+
+
+The effort required to perform this mapping, and the fact that it is extrinsic to the programming language, produces programs that are difficult to write and expensive to maintain, and as a side effect created the entire “programming methods” industry. 3.5970982243
+
+
+
+
+These languages are big improvements over assembly language, but their primary abstraction still requires you to think in terms of the structure of the computer rather than the structure of the problem you are trying to solve. 3.52128179249
+
+
+
+
+The latter proved to be too restrictive). 3.50366924555
+
+
+
+
+Assembly language is a small abstraction of the underlying machine. 3.47813658387
+
+
+
+
+This representation is general enough that the programmer is not constrained to any particular type of problem. 3.0413201159
+
+
+
+
+Early languages such as LISP and APL chose particular views of the world (“All problems are ultimately lists” or “All problems are algorithmic”). 2.23560021698
+
+
+
+
+Of course, you will also need other objects that don’t have problem-space analogs). 2.21948133516
+
+
+
+
+There’s still a connection back to the computer, though. 2.06133677344
+
+
+
+
+However, this doesn’t seem like such a bad analogy to objects in the real world; they all have characteristics and behaviors. 1.98488841949
+
+
+
+
+Many so-called “imperative” languages that followed (such as Fortran, BASIC, and C) were abstractions of assembly language. 1.9364681452
+
+
+
+
+Each object looks quite a bit like a little computer; it has a state, and it has operations that you can ask it to perform. 1.89571821426
+
+
+
+
+All programming languages provide abstractions. 1.78178123019
+
+
+
+
+By “kind” I mean, “What is it that you are abstracting? 1.74649394859
+
+
+
+
+This is a more flexible and powerful language abstraction than what we’ve had before. 1.53050547372
+
+
+
+
+PROLOG casts all problems into chains of decisions. 1.3768857407
+
+
+
+
+Languages have been created for constraint-based programming and for programming exclusively by manipulating graphical symbols. 1.30768553666
+
+
+
+

@@ -1,0 +1,5 @@
+Although all problems are algorithmic, modelling them in functional languages might be difficult.
+
+Each programming paradigm is suited to a specific class of problems.
+
+Using objects in programming languages allows us to map most real world problems to a computer program.
