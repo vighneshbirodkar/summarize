@@ -3,6 +3,7 @@ import os
 import math
 import itertools
 import random
+import logging
 
 from .. import __DEBUG__
 
@@ -34,8 +35,24 @@ class Sentence(object):
     def __init__(self,string):
         self.string = string
         self.words_ = []
+        #prob that sentence exists
         self.probability = None 
+
+        #probablity that this sentence contributed to a given summary
         self.contribProbability = None
+
+        #probablity that this sentence is in a summary given a basedoc
+        self.summaryProbablity = None
+
+        #the gaussian overlap
+        self.go = None
+        
+        #the importance given a summary
+        self.importance = None
+        
+
+        #the fso overlap
+        self.fso = None
         matchIter = re.finditer('[\w]+',string)
         self.len_ = 0
         self.score = random.random()/2 # random number between 0 and 3
@@ -90,13 +107,24 @@ class Sentence(object):
         self.influenceScore = influence * w
         #print "w = ",w,"len = ",len(self)
 
+    def addCooccurProbability(self,baseDoc):
+        w = 0
+        baseDoc.doCoGraph()
+        for pair in itertools.combinations(self.words(), 2):
+            #print pair[0],pair[1]
+            w += baseDoc.getCoGraphWeight(pair[0],pair[1])/len(self)
+        self.summaryProbability = w
+        
+        
+
 class Document(object):
     """
     
     A class represnting a text document and all the relevant information
     
     """
-    regex = re.compile(r'([A-Z][^\.!?]*[\.!?])')
+    regex = re.compile(r'[\.!?]')
+    #print '\n\n\n'
     def __init__(self,fileName,_set = None):
         """
         Creates a Document object
@@ -114,17 +142,20 @@ class Document(object):
         self.coOccurDone = False
         self.wordCount = {}
         with open(fileName, 'r') as f:
-            for line in f:
-                list_ = Document.regex.split(line.strip())
-                for s in list_ :
-                    s = s.strip()
-                    if len(s) > 0 :
-                        #print 'string = ' , '" ',s,' "'
-                        try :
-                            self.sentences_.append(Sentence(s))
-                        except ValueError:
-                            #No Valid word was found
-                            pass
+            line = f.read()
+            list_ = Document.regex.split(line.strip())
+            for s in list_ :
+                s = s.strip()
+                s = s.split('\n')
+                s = ''.join(s)
+                if len(s) > 0 :
+                    #print 'string = ' , '" ',s,' "'
+                    try :
+                        self.sentences_.append(Sentence(s))
+                    except ValueError:
+                        #No Valid word was found
+                        pass
+        #print '\n\n\n' + str(self.sentences_) + '\n\n\n'
         
         for sentence in self.sentences_:
             for word in sentence.words_:
@@ -211,13 +242,14 @@ class Document(object):
                 s.setScore( (1 - __DFACTOR__) + __DFACTOR__*total)
                 update = abs(s.getScore() - oldValue)
                 totalUpdate += update
-            if __DEBUG__ : 
-                print 'Text Rank Iteration, Error = ',totalUpdate
+
+            logging.info('Text Rank Iteration, Error = %f' % totalUpdate)
     
     def doCoGraph(self):
-        
         if self.coOccurDone :
             return
+        
+        logging.info('Computing Co Graph')
         self.coOccurDone = True
         self.coGraph = graph()
         for s in self.sentences():
@@ -290,13 +322,64 @@ class Document(object):
             sigma : The sigma parameter for Gaussians
         
         """
-        return self.getLocalOverlap(idx_s, self.getGaussianWeights(sigma))
+        return self.getLocalOverlap(idx_s, self.getGaussianWeights(sigma))/self.sentences_[idx_s].len_
     
     def getSentenceProbability(self, s_idx):
         probability = 0
         for word in self.sentences_[s_idx].words_:
             probability += self.wordCount[word]/float(self.totalWords)
         return probability/len(self.sentences_[s_idx].words_)
+
+    def genGO(self,sigma = 5.0):
+        for i,s in enumerate(self.sentences_):
+            s.go = self.getGaussianOverlap(i,sigma)
+            
+    def genFSO(self):
+        for i,s in enumerate(self.sentences_):
+            s.fso = self.getFSOverlap(s)
+            
+    def genFeatures(self):
+        self.doTextRank()
+        self.genFSO()
+        self.genGO()
+        
+    def genImportance(self,summDoc,k = 4):
+        for mainSentence in self.sentences_ :
+            impList = [] 
+            for idx,summSentence in enumerate(summDoc.sentences_ ):
+                low = idx - k
+                low = max(low,0)
+                
+                high = idx + k
+                high = min(high, len(summSentence))
+
+                imp = 0
+                for pair in itertools.combinations(summSentence.words()[low:high],2):
+                    if( pair[0] in mainSentence.words() and pair[1] in mainSentence.words()):
+                        imp += 1
+                impList.append(imp)
+                
+            mainSentence.importance = max(impList)
+                                
+
+class Summary(Document):
+    
+    def __init__(self,filename,base):
+        Document.__init__(self,filename)
+        self.baseDoc = base
+        self.generateSummaryProbability()
+
+    def generateSummaryProbability(self):
+
+        """
+    
+        Assigns the probability to each sentence in the summary exist
+        given the base document.
+
+        """
+    
+        for s in self.sentences_ :
+            s.addCooccurProbability(self.baseDoc)
 
 class DocumentSet(object):
     """

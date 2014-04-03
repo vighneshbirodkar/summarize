@@ -1,6 +1,6 @@
 __DEBUG__ = True
-from Base import Document,DocumentSet,Sentence
+from Base import Document,DocumentSet,Sentence,Summary
 
 
 
-__all__ = ['Document','DocumentSet','Sentence','__DEBUG__']
+__all__ = ['Document','DocumentSet','Sentence','__DEBUG__','Summary']

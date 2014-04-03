@@ -1,5 +1,0 @@
-Languages provide abstractions to programmers allowing them to model real world problems in terms of the language.
-
-The power of a language is determined by how easy it is to perform the mapping, and the diversity of problems which can be solved using it.
-
-The object oriented paradigm has proven to be quite powerful.
