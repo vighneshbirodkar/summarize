@@ -33,7 +33,9 @@ class Sentence(object):
     
     """
     
-    def __init__(self,string):
+    def __init__(self,string,idx):
+    
+        self.index = idx
         self.string = string
         self.words_ = []
         #prob that sentence exists
@@ -141,7 +143,9 @@ class Document(object):
         self.fn = fileName
         self.textRank = False
         self.coOccurDone = False
+        self.featuresGenerated = False
         self.wordCount = {}
+        count = 0
         with open(fileName, 'r') as f:
             line = f.read()
             list_ = Document.regex.split(line.strip())
@@ -152,7 +156,8 @@ class Document(object):
                 if len(s) > 0 :
                     #print 'string = ' , '" ',s,' "'
                     try :
-                        self.sentences_.append(Sentence(s))
+                        count += 1
+                        self.sentences_.append(Sentence(s,count))
                     except ValueError:
                         #No Valid word was found
                         pass
@@ -340,9 +345,11 @@ class Document(object):
             s.fso = self.getFSOverlap(s)
             
     def genFeatures(self):
-        self.doTextRank()
-        self.genFSO()
-        self.genGO()
+        if not self.featuresGenerated :
+            self.doTextRank()
+            self.genFSO()
+            self.genGO()
+            self.featuresGenerated = True
         
     def genImportance(self,summDoc,k = 4):
         for mainSentence in self.sentences_ :
@@ -374,6 +381,21 @@ class Document(object):
         model.fit(features, impData)
         
         return model
+        
+    def compress(self,machine,compression = 0.2):
+        
+        self.genFeatures()
+        features = [(s.go, s.fso, s.score) for s in self.sentences_ ]
+        prediction = machine.predict(features)
+        
+        sentenceSores = zip(self.sentences_,prediction)
+        sortedSentences = sorted(sentenceSores, key = lambda s : s[1], reverse = True)
+        
+        length = int( len(self.sentences_)*compression )
+        
+        sortedSentences = sortedSentences[0:length]
+        sortedSentences = [s[0] for s in sortedSentences]
+        return sorted(sortedSentences, key = lambda x : x.index )
         
         
         
