@@ -4,6 +4,7 @@ import math
 import itertools
 import random
 import logging
+from sklearn.svm import SVR
 
 from .. import __DEBUG__
 
@@ -147,7 +148,7 @@ class Document(object):
             for s in list_ :
                 s = s.strip()
                 s = s.split('\n')
-                s = ''.join(s)
+                s = ' '.join(s)
                 if len(s) > 0 :
                     #print 'string = ' , '" ',s,' "'
                     try :
@@ -360,8 +361,23 @@ class Document(object):
                 impList.append(imp)
                 
             mainSentence.importance = max(impList)
-                                
+   
+    def trainMachine(self,summDoc):
 
+        self.genFeatures()
+        self.genImportance(summDoc)
+        
+        features = [(s.go, s.fso, s.score) for s in self.sentences_]
+        impData = [s.importance for s in self.sentences_]
+        
+        model = SVR()
+        model.fit(features, impData)
+        
+        return model
+        
+        
+        
+        
 class Summary(Document):
     
     def __init__(self,filename,base):
