@@ -3,18 +3,11 @@ summarize
 
 A Python Library intended fo Automatic Text Summarization
 
-# Development
+# Development Installation
 
-```python
-sudo python setup.py develop
-```
 
-#Example 
-```python
-from summarize import Document,DocumentSet
-
-dset = DocumentSet('iphone')
-
-words = dset.terms()
-dset.docs()[0].visualize()
+```shell
+> git clone https://github.com/vighneshbirodkar/summarize.git
+> cd summarize
+> sudo python setup.py develop
 ```
