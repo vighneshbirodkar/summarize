@@ -355,18 +355,19 @@ class Document(object):
         for mainSentence in self.sentences_ :
             impList = [] 
             for idx,summSentence in enumerate(summDoc.sentences_ ):
-                low = idx - k
-                low = max(low,0)
+                impList.append(summSentence.similarity(mainSentence))
+#                low = idx - k
+#                low = max(low,0)
                 
-                high = idx + k
-                high = min(high, len(summSentence))
+#                high = idx + k
+#                high = min(high, len(summSentence))
 
-                imp = 0
-                for pair in itertools.combinations(summSentence.words()[low:high],2):
-                    if( pair[0] in mainSentence.words() and pair[1] in mainSentence.words()):
-                        imp += 1
-                impList.append(imp)
-                
+#                imp = 0
+#                for pair in itertools.combinations(summSentence.words()[low:high],2):
+#                    if( pair[0] in mainSentence.words() and pair[1] in mainSentence.words()):
+#                        imp += 1
+#                impList.append(imp)
+#                
             mainSentence.importance = max(impList)
    
     def trainMachine(self,summDoc):
